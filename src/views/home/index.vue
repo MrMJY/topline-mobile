@@ -1,13 +1,14 @@
-<!-- app 跟组建 -->
+<!-- home 组件 -->
 <template>
-  <div class='app'>
-    <router-view></router-view>
+  <div class='home-wrap'>
+    HOME Component
   </div>
 </template>
 
 <script>
 
 export default {
+  name: 'Home',
   data () {
     return {
 

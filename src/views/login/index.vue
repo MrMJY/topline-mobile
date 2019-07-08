@@ -1,13 +1,14 @@
-<!-- app 跟组建 -->
+<!-- login 组件 -->
 <template>
-  <div class='app'>
-    <router-view></router-view>
+  <div class='login-wrap'>
+    Login Component
   </div>
 </template>
 
 <script>
 
 export default {
+  name: 'Login',
   data () {
     return {
 
