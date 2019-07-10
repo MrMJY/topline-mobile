@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { login } from '@/api/user'
 export default {
   name: 'Login',
   data () {
@@ -45,12 +45,8 @@ export default {
   methods: {
     async handleLogin () {
       this.loading = true
-      const res = await axios({
-        method: 'POST',
-        url: 'http://toutiao.course.itcast.cn/app/v1_0/authorizations',
-        data: this.user
-      })
       try {
+        const res = await login(this.user)
         this.loading = false
         window.sessionStorage.setItem('user-info', JSON.stringify(res))
         this.$router.push({
