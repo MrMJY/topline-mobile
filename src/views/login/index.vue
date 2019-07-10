@@ -52,7 +52,7 @@ export default {
       })
       try {
         this.loading = false
-        window.sessionStorage.setItem('user-info', JSON.stringify(res.data.data))
+        window.sessionStorage.setItem('user-info', JSON.stringify(res))
         this.$router.push({
           name: 'home'
         })
