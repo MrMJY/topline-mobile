@@ -3,7 +3,8 @@ const axios = require('axios')
 // You can create a new instance of axios with a custom config.
 
 const request = axios.create({
-  baseURL: 'http://toutiao.course.itcast.cn'
+  // baseURL: 'http://toutiao.course.itcast.cn'
+  baseURL: 'http://ttapi.research.itcast.cn/'
 })
 
 // You can intercept(拦截) requests or responses before they are handled by then or catch.

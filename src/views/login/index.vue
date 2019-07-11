@@ -61,23 +61,21 @@ export default {
     async handleLogin () {
       this.loading = true
       try {
-        this.$validator.validate().then(async valid => {
-          // 如果表单验证失败，则什么都不做
-          if (!valid) {
-            this.loading = false
-            return
-          }
+        const valid = await this.$validator.validate()
+        // 如果表单验证失败，则什么都不做
+        if (valid) {
           // 表单验证通过，提交表单
           const res = await login(this.user)
           this.$store.commit('setUser', res)
-          this.loading = false
           this.$router.push({
             name: 'home'
           })
-        })
+        }
       } catch (err) {
         console.log(err)
+        this.$toast('登录失败')
       }
+      this.loading = false
     },
     handleSendCode () {
       console.log('发送短信验证码啦')

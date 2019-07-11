@@ -1,36 +1,28 @@
 <!-- home 组件 -->
 <template>
   <div class='home-wrap'>
-    <header>
-      <van-search placeholder="搜索"
-                  background="#5babfb"
+    <van-nav-bar fixed>
+      <van-search slot="title"
+                  placeholder="搜索"
+                  background="#3296fa"
                   input-align="center"
                   v-model="value" />
-    </header>
-    <footer>
-      <van-tabbar v-model="active">
-        <van-tabbar-item icon="home">
-          <span>首页</span>
-          <i slot="icon"
-             class="iconfont icon-home f20"></i>
-        </van-tabbar-item>
-        <van-tabbar-item icon="search">
-          <span>问答</span>
-          <i slot="icon"
-             class="iconfont icon-i-message f20"></i>
-        </van-tabbar-item>
-        <van-tabbar-item icon="friends-o">
-          <span>视频</span>
-          <i slot="icon"
-             class="iconfont icon-video f20"></i>
-        </van-tabbar-item>
-        <van-tabbar-item icon="setting-o">
-          <span>我的</span>
-          <i slot="icon"
-             class="iconfont icon-Account f20"></i>
-        </van-tabbar-item>
-      </van-tabbar>
-    </footer>
+    </van-nav-bar>
+    <van-tabs v-model="activeIndex">
+      <van-tab title="标签 1">
+        <van-pull-refresh v-model="isLoading"
+                          @refresh="onRefresh">
+          <van-list v-model="loading"
+                    :finished="finished"
+                    finished-text="没有更多了"
+                    @load="onLoad">
+            <van-cell v-for="item in list"
+                      :key="item"
+                      :title="item" />
+          </van-list>
+        </van-pull-refresh>
+      </van-tab>
+    </van-tabs>
   </div>
 </template>
 
@@ -41,22 +33,52 @@ export default {
   data () {
     return {
       value: '',
-      active: 0
+      activeIndex: 0,
+      list: [],
+      loading: false,
+      finished: false,
+      isLoading: false
     }
   },
   methods: {
+    onLoad () {
+      // 异步更新数据
+      setTimeout(() => {
+        for (let i = 0; i < 10; i++) {
+          this.list.push(this.list.length + 1)
+        }
+        // 加载状态结束
+        this.loading = false
 
+        // 数据全部加载完成
+        if (this.list.length >= 40) {
+          this.finished = true
+        }
+      }, 500)
+    },
+
+    onRefresh () {
+      setTimeout(() => {
+        this.$toast('刷新成功')
+        this.isLoading = false
+        this.count++
+      }, 500)
+    }
   }
 }
 </script>
 <style lang="less" scoped>
-header {
-  background-color: #3296fa;
-  .van-search {
-    padding: 6px 42px;
-  }
+.van-search {
+  padding: 4px 1px;
 }
 .van-search__content {
   border-radius: 17px;
+}
+.van-tabs /deep/ .van-tabs__wrap {
+  top: 44px;
+  position: fixed;
+}
+.van-tabs /deep/ .van-tabs__content {
+  margin-top: 44px;
 }
 </style>
