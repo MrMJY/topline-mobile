@@ -1,5 +1,7 @@
 const axios = require('axios')
-
+const {
+  getUser
+} = require('./user')
 // You can create a new instance of axios with a custom config.
 
 const request = axios.create({
@@ -11,6 +13,10 @@ const request = axios.create({
 // Add a request interceptor
 request.interceptors.request.use(function (config) {
   // Do something before request is sent
+  const user = getUser()
+  if (user) {
+    config.headers.Authorization = `Bearer ${user.token}`
+  }
   return config
 }, function (error) {
   // Do something with request error

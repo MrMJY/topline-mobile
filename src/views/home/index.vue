@@ -9,16 +9,18 @@
                   v-model="value" />
     </van-nav-bar>
     <van-tabs v-model="activeIndex">
-      <van-tab title="标签 1">
-        <van-pull-refresh v-model="isLoading"
+      <van-tab v-for="item in channels"
+               :key="item.id"
+               :title="item.name">
+        <van-pull-refresh v-model="activeChannel.slideDownLoading"
                           @refresh="onRefresh">
-          <van-list v-model="loading"
-                    :finished="finished"
+          <van-list v-model="activeChannel.sildeUpLoading"
+                    :finished="activeChannel.finished"
                     finished-text="没有更多了"
                     @load="onLoad">
-            <van-cell v-for="item in list"
-                      :key="item"
-                      :title="item" />
+            <van-cell v-for="article in activeChannel.articles"
+                      :key="article.title"
+                      :title="article.title" />
           </van-list>
         </van-pull-refresh>
       </van-tab>
@@ -27,42 +29,56 @@
 </template>
 
 <script>
-
+import { getChannels, getVisitorArticles } from '@/api/articles'
 export default {
   name: 'Home',
   data () {
     return {
       value: '',
       activeIndex: 0,
-      list: [],
-      loading: false,
-      finished: false,
-      isLoading: false
+      channels: [],
+      count: 1
+    }
+  },
+  created () {
+    this.loadChannels()
+  },
+  computed: {
+    activeChannel () {
+      return this.channels[this.activeIndex]
     }
   },
   methods: {
-    onLoad () {
-      // 异步更新数据
-      setTimeout(() => {
-        for (let i = 0; i < 10; i++) {
-          this.list.push(this.list.length + 1)
-        }
-        // 加载状态结束
-        this.loading = false
-
-        // 数据全部加载完成
-        if (this.list.length >= 40) {
-          this.finished = true
-        }
-      }, 500)
+    async onLoad () {
+      console.log(this.count++)
+      const data = await getVisitorArticles({
+        channelId: this.activeChannel.id,
+        timestamp: this.activeChannel.timestamp,
+        withTop: 1
+      })
+      this.activeChannel.timestamp = data.pre_timestamp
+      if (!data.results.length) {
+        this.onLoad()
+      } else {
+        this.activeChannel.articles.push(...data.results)
+        this.activeChannel.sildeUpLoading = false
+      }
     },
 
     onRefresh () {
-      setTimeout(() => {
-        this.$toast('刷新成功')
-        this.isLoading = false
-        this.count++
-      }, 500)
+      console.log('refrsh called')
+    },
+
+    async loadChannels () {
+      const data = await getChannels()
+      data.channels.forEach(item => {
+        item.slideDownLoading = false // 下拉加载
+        item.slideUpLoading = false // 上拉加载
+        item.finished = false // 是否加载完成
+        item.articles = [] // 当前频道的文章内容
+        item.timestamp = Date.now()
+      })
+      this.channels = data.channels
     }
   }
 }
