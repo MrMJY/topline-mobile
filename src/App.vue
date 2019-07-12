@@ -1,7 +1,9 @@
 <!-- app 跟组建 -->
 <template>
   <div class='app'>
-    <router-view></router-view>
+    <keep-alive>
+      <router-view />
+    </keep-alive>
   </div>
 </template>
 

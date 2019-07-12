@@ -1,7 +1,9 @@
 <!-- tabbar组件 -->
 <template>
   <div class='home-tabbar'>
-    <router-view />
+    <keep-alive>
+      <router-view />
+    </keep-alive>
     <footer>
       <van-tabbar route>
         <van-tabbar-item icon="home"

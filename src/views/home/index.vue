@@ -13,6 +13,7 @@
                :key="item.id"
                :title="item.name">
         <van-pull-refresh v-model="activeChannel.slideDownLoading"
+                          :success-text="successText"
                           @refresh="onRefresh">
           <van-list v-model="activeChannel.sildeUpLoading"
                     :finished="activeChannel.finished"
@@ -36,9 +37,11 @@ export default {
     return {
       value: '',
       activeIndex: 0,
-      channels: []
+      channels: [],
+      successText: ''
     }
   },
+
   created () {
     this.loadChannels()
   },
@@ -49,23 +52,51 @@ export default {
   },
   methods: {
     async onLoad () {
+      const { activeChannel } = this
       await this.$sleep(800)
       const data = await getVisitorArticles({
-        channelId: this.activeChannel.id,
-        timestamp: this.activeChannel.timestamp,
+        channelId: activeChannel.id,
+        timestamp: activeChannel.timestamp,
         withTop: 1
       })
-      this.activeChannel.timestamp = data.pre_timestamp
+      // 数据全部加载完毕 data.pre_timestamp 为 null 时
+      if (!data.pre_timestamp) {
+        activeChannel.finished = true
+      }
+      activeChannel.timestamp = data.pre_timestamp
       if (!data.results.length) {
         this.onLoad()
       } else {
-        this.activeChannel.articles.push(...data.results)
-        this.activeChannel.sildeUpLoading = false
+        activeChannel.articles.push(...data.results)
+        activeChannel.sildeUpLoading = false
       }
     },
 
-    onRefresh () {
-      console.log('refrsh called')
+    async onRefresh () {
+      const { activeChannel } = this
+      // 保存下一页的时间戳
+      const tempTimestamp = activeChannel.timestamp
+      // 设置本次请求的时间戳为当前时间
+      activeChannel.timestamp = Date.now()
+      await this.$sleep(800)
+      const data = await getVisitorArticles({
+        channelId: activeChannel.id,
+        timestamp: activeChannel.timestamp,
+        withTop: 1
+      })
+      // 如果有数据，覆盖当前频道的文章列表，并且把下一页的时间戳保存
+      if (data.results.length) {
+        activeChannel.articles = data.results
+        activeChannel.timestamp = data.pre_timestamp
+        this.successText = `更新了${data.results.length}条数据`
+      } else {
+        // 否则恢复原来下一页的时间戳
+        activeChannel.timestamp = tempTimestamp
+        this.successText = '已是最新'
+      }
+      // 取消下拉 loading
+      activeChannel.slideDownLoading = false
+      // this.successText = ''
     },
 
     async requestChannels () {
