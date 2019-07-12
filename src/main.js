@@ -20,6 +20,15 @@ Vue.use(VeeValidate, {
 Validator.localize('zh_CN', zhCN)
 Vue.config.productionTip = false
 
+// Promise 是一个包装异步操作的容器
+Vue.prototype.$sleep = time => {
+  return new Promise((resolve, reject) => {
+    window.setTimeout(() => {
+      resolve()
+    }, time)
+  })
+}
+
 new Vue({
   router,
   store,

@@ -36,8 +36,7 @@ export default {
     return {
       value: '',
       activeIndex: 0,
-      channels: [],
-      count: 1
+      channels: []
     }
   },
   created () {
@@ -50,7 +49,7 @@ export default {
   },
   methods: {
     async onLoad () {
-      console.log(this.count++)
+      await this.$sleep(800)
       const data = await getVisitorArticles({
         channelId: this.activeChannel.id,
         timestamp: this.activeChannel.timestamp,
@@ -69,7 +68,7 @@ export default {
       console.log('refrsh called')
     },
 
-    async loadChannels () {
+    async requestChannels () {
       const data = await getChannels()
       data.channels.forEach(item => {
         item.slideDownLoading = false // 下拉加载
@@ -79,6 +78,26 @@ export default {
         item.timestamp = Date.now()
       })
       this.channels = data.channels
+    },
+
+    async loadChannels () {
+      const user = this.$store.state.user
+      if (user) {
+        // 如果是登录状态，发送请求请求用户的频道列表
+        await this.requestChannels()
+      } else {
+        // 如果未登录则读取本地的频道列表
+        // 不着急 JSON.parse 因为如果没有转换会报错
+        const localChannels = window.localStorage.getItem('local-channels')
+        if (localChannels) {
+          this.channels = JSON.parse(localChannels)
+        } else {
+          // 如果本地没有则请求，并把结果存储到本地
+          await this.requestChannels()
+          console.log(this.channels)
+          window.localStorage.setItem('local-channels', JSON.stringify(this.channels))
+        }
+      }
     }
   }
 }
