@@ -9,6 +9,9 @@
                   v-model="value" />
     </van-nav-bar>
     <van-tabs v-model="activeIndex">
+      <van-button class="nav-btn"
+                  icon="wap-nav"
+                  @click="isShow = true" />
       <van-tab v-for="item in channels"
                :key="item.id"
                :title="item.name">
@@ -26,30 +29,51 @@
         </van-pull-refresh>
       </van-tab>
     </van-tabs>
+    <home-channels v-model="isShow"
+                   :userChannels="channels"
+                   :activeItem="activeIndex" />
   </div>
 </template>
 
 <script>
-import { getChannels, getVisitorArticles } from '@/api/articles'
+import { getVisitorArticles } from '@/api/articles'
+import { getChannels } from '@/api/channels'
+
 export default {
   name: 'Home',
+  components: {
+    HomeChannels: () => import('./components/channels')
+  },
   data () {
     return {
       value: '',
       activeIndex: 0,
       channels: [],
-      successText: ''
+      successText: '',
+      isShow: false
+    }
+  },
+
+  watch: {
+    // 监视 vuex 中的用户登录状态
+    async '$store.state.user' () {
+      // 重新加载频道列表
+      await this.loadChannels()
+      // 重新刷新加载
+      this.activeChannel.slideUpLoading = true
     }
   },
 
   created () {
     this.loadChannels()
   },
+
   computed: {
     activeChannel () {
       return this.channels[this.activeIndex]
     }
   },
+
   methods: {
     async onLoad () {
       const { activeChannel } = this
@@ -114,7 +138,7 @@ export default {
     async loadChannels () {
       const user = this.$store.state.user
       if (user) {
-        // 如果是登录状态，发送请求请求用户的频道列表
+        // 如果是登录状态，发送请求请求用户的频道列表 token 过期问题未解决
         await this.requestChannels()
       } else {
         // 如果未登录则读取本地的频道列表
@@ -125,7 +149,6 @@ export default {
         } else {
           // 如果本地没有则请求，并把结果存储到本地
           await this.requestChannels()
-          console.log(this.channels)
           window.localStorage.setItem('local-channels', JSON.stringify(this.channels))
         }
       }
@@ -143,8 +166,20 @@ export default {
 .van-tabs /deep/ .van-tabs__wrap {
   top: 44px;
   position: fixed;
+  margin-right: 20px;
 }
 .van-tabs /deep/ .van-tabs__content {
   margin-top: 44px;
+}
+.nav-btn {
+  height: 40px;
+  width: 35px;
+  position: fixed;
+  top: 44px;
+  right: -1px;
+  z-index: 100;
+  border: 0;
+  padding: 0;
+  font-size: 18px;
 }
 </style>
