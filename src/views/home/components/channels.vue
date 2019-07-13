@@ -15,7 +15,8 @@
           </van-button>
         </div>
         <van-grid-item v-for="(item, index) in userChannels"
-                       :key="item.id">
+                       :key="item.id"
+                       @click="handleDeleteChannels(item, index)">
           <span class="text"
                 :class="{ red:activeItem === index }">
             {{ item.name }}
@@ -27,7 +28,8 @@
           <span>频道推荐</span>
         </div>
         <van-grid-item v-for="item in filterChannels"
-                       :key="item.id">
+                       :key="item.id"
+                       @click="handleAddChannels(item)">
           <span class="text">{{ item.name }}</span>
         </van-grid-item>
       </van-grid>
@@ -37,6 +39,7 @@
 
 <script>
 import { getAllChannels } from '@/api/channels'
+import { user } from 'vuex'
 export default {
   name: 'HomeChannels',
   data () {
@@ -72,6 +75,36 @@ export default {
     async loadAllChannels () {
       const data = await getAllChannels()
       this.allChannels = data.channels
+    },
+
+    handleDeleteChannels (item, index) {
+      if (this.isEdit) {
+        // 删除指定的频道
+        this.userChannels.splice(index, 1)
+        // 登录状态
+        if (user) {
+          return 1
+        }
+        window.localStorage.setItem('local-channels', JSON.stringify(this.userChannels))
+      }
+    },
+
+    handleAddChannels (item) {
+      // 保持相同的数据结构
+      item.slideDownLoading = false // 下拉加载
+      item.slideUpLoading = false // 上拉加载
+      item.finished = false // 是否加载完成
+      item.articles = [] // 当前频道的文章内容
+      item.timestamp = Date.now()
+      // 添加频道
+      this.userChannels.push(item)
+      this.$emit('update:userChannels', this.userChannels)
+
+      // 登录状态
+      if (user) {
+        return 1
+      }
+      window.localStorage.setItem('local-channels', JSON.stringify(this.userChannels))
     }
   }
 }

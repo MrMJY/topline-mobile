@@ -30,7 +30,7 @@
       </van-tab>
     </van-tabs>
     <home-channels v-model="isShow"
-                   :userChannels="channels"
+                   :userChannels.sync="channels"
                    :activeItem="activeIndex" />
   </div>
 </template>
@@ -120,7 +120,6 @@ export default {
       }
       // 取消下拉 loading
       activeChannel.slideDownLoading = false
-      // this.successText = ''
     },
 
     async requestChannels () {
