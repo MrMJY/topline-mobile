@@ -39,7 +39,7 @@
                       class="red">置顶&nbsp;</span>
                 <span class="gray">{{ article.aut_name }}</span>&nbsp;
                 <span class="gray">{{ article.comm_count }}评论</span>&nbsp;
-                <span class="gray">{{ article.pubdate }}</span>
+                <span class="gray">{{ article.pubdate | dateFormat }}</span>
               </p>
             </van-cell>
           </van-list>
