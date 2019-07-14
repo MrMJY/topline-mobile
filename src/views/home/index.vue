@@ -30,7 +30,9 @@
                           :column-num="3">
                   <van-grid-item v-for="(image, index) in article.cover.images"
                                  :key="index">
-                    <van-image :src="image" />
+                    <van-image :src="image"
+                               :fit="'cover'"
+                               lazy-load />
                   </van-grid-item>
                 </van-grid>
               </template>
@@ -40,6 +42,9 @@
                 <span class="gray">{{ article.aut_name }}</span>&nbsp;
                 <span class="gray">{{ article.comm_count }}评论</span>&nbsp;
                 <span class="gray">{{ article.pubdate | dateFormat }}</span>
+                <van-icon class="close"
+                          name="close"
+                          @click="handleShowMoreAction" />
               </p>
             </van-cell>
           </van-list>
@@ -49,6 +54,7 @@
     <home-channels v-model="isShow"
                    :userChannels.sync="channels"
                    :activeItem.sync="activeIndex" />
+    <more-action v-model="isShowMoreAction" />
   </div>
 </template>
 
@@ -59,7 +65,8 @@ import { getChannels } from '@/api/channels'
 export default {
   name: 'Home',
   components: {
-    HomeChannels: () => import('./components/channels')
+    HomeChannels: () => import('./components/channels'),
+    MoreAction: () => import('./components/moreAction')
   },
   data () {
     return {
@@ -67,7 +74,8 @@ export default {
       activeIndex: 0,
       channels: [],
       successText: '',
-      isShow: false
+      isShow: false,
+      isShowMoreAction: false
     }
   },
 
@@ -168,6 +176,11 @@ export default {
           window.localStorage.setItem('local-channels', JSON.stringify(this.channels))
         }
       }
+    },
+
+    handleShowMoreAction () {
+      this.isShowMoreAction = true
+      console.log('show called')
     }
   }
 }
@@ -209,5 +222,10 @@ export default {
 }
 .gray {
   color: #b4b4b4;
+}
+.close {
+  float: right;
+  font-size: 16px;
+  margin-top: 4px;
 }
 </style>
