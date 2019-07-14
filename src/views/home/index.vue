@@ -23,8 +23,25 @@
                     finished-text="没有更多了"
                     @load="onLoad">
             <van-cell v-for="article in activeChannel.articles"
-                      :key="article.title"
-                      :title="article.title" />
+                      :key="article.title">
+              <p class="p-m0">{{ article.title }}</p>
+              <template v-if="article.cover.type">
+                <van-grid :border="false"
+                          :column-num="3">
+                  <van-grid-item v-for="(image, index) in article.cover.images"
+                                 :key="index">
+                    <van-image :src="image" />
+                  </van-grid-item>
+                </van-grid>
+              </template>
+              <p class="p-m0">
+                <span v-if="article.is_top"
+                      class="red">置顶&nbsp;</span>
+                <span class="gray">{{ article.aut_name }}</span>&nbsp;
+                <span class="gray">{{ article.comm_count }}评论</span>&nbsp;
+                <span class="gray">{{ article.pubdate }}</span>
+              </p>
+            </van-cell>
           </van-list>
         </van-pull-refresh>
       </van-tab>
@@ -180,5 +197,17 @@ export default {
   border: 0;
   padding: 0;
   font-size: 18px;
+}
+.p-m0 {
+  margin: 0;
+  span {
+    font-size: 12px;
+  }
+}
+.red {
+  color: #e22829;
+}
+.gray {
+  color: #b4b4b4;
 }
 </style>
