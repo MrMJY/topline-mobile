@@ -18,9 +18,9 @@
                        :key="item.id"
                        @click="handleDeleteChannels(item, index)">
           <span class="text"
-                :class="{ red:activeItem === index }">
+                :class="{ red:activeItem === index && !isEdit }">
             {{ item.name }}
-            <van-icon v-show="isEdit"
+            <van-icon v-show="isEdit && item.id !== 0"
                       name="close" />
           </span>
         </van-grid-item>
@@ -38,14 +38,14 @@
 </template>
 
 <script>
-import { getAllChannels } from '@/api/channels'
-import { user } from 'vuex'
+import { getAllChannels, resetAllChannels } from '@/api/channels'
 export default {
   name: 'HomeChannels',
   data () {
     return {
       allChannels: [],
-      isEdit: false
+      isEdit: false,
+      user: this.$store.state.user
     }
   },
   props: {
@@ -80,13 +80,24 @@ export default {
     handleDeleteChannels (item, index) {
       if (this.isEdit) {
         // 删除指定的频道
-        this.userChannels.splice(index, 1)
+        if (item.id !== 0) {
+          this.userChannels.splice(index, 1)
+        }
         // 登录状态
-        if (user) {
+        if (this.user) {
+          const data = this.userChannels.map((item, index) => {
+            return {
+              id: item.id,
+              seq: index
+            }
+          })
+          console.log(data)
+          resetAllChannels(data)
           return 1
         }
         window.localStorage.setItem('local-channels', JSON.stringify(this.userChannels))
       }
+      this.$emit('update:activeItem', index)
     },
 
     handleAddChannels (item) {
@@ -101,7 +112,16 @@ export default {
       this.$emit('update:userChannels', this.userChannels)
 
       // 登录状态
-      if (user) {
+      if (this.user) {
+        console.log('login call')
+        const data = this.userChannels.slice(1).map((item, index) => {
+          return {
+            id: item.id,
+            seq: index + 2
+          }
+        })
+        console.log(data)
+        resetAllChannels(data)
         return 1
       }
       window.localStorage.setItem('local-channels', JSON.stringify(this.userChannels))

@@ -31,7 +31,7 @@
     </van-tabs>
     <home-channels v-model="isShow"
                    :userChannels.sync="channels"
-                   :activeItem="activeIndex" />
+                   :activeItem.sync="activeIndex" />
   </div>
 </template>
 
