@@ -12,7 +12,8 @@
           <van-cell title="反馈垃圾内容"
                     is-link
                     @click="isShow = true" />
-          <van-cell title="拉黑作者" />
+          <van-cell title="拉黑作者"
+                    @click="handleAddBlackList" />
         </template>
         <template v-else>
           <van-cell>
@@ -32,6 +33,7 @@
 
 <script>
 import { dislikeArticles } from '@/api/articles'
+import { addBlackList } from '@/api/user'
 export default {
   name: 'MoreAction',
   props: {
@@ -100,6 +102,21 @@ export default {
       try {
         await dislikeArticles(this.currentArticle.art_id)
         this.$toast('操作成功')
+      } catch (err) {
+        console.log(err)
+        this.$toast('操作失败')
+      }
+      this.handleHidden()
+    },
+
+    handleAddBlackList () {
+      if (!this.$isLogin()) {
+        this.$toast('登录后可操作')
+        return
+      }
+      try {
+        addBlackList(this.currentArticle.aut_id)
+        this.$toast('拉黑成功')
       } catch (err) {
         console.log(err)
         this.$toast('操作失败')

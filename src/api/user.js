@@ -13,3 +13,13 @@ export const login = ({
     }
   })
 }
+
+export const addBlackList = userId => {
+  return request({
+    method: 'POST',
+    url: '/app/v1_0/user/blacklists',
+    data: {
+      target: userId
+    }
+  })
+}
