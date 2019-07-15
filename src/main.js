@@ -78,6 +78,15 @@ Vue.prototype.$sleep = time => {
   })
 }
 
+// 登录状态的判断
+Vue.prototype.$isLogin = () => {
+  const user = store.state.user
+  if (!user) {
+    return false
+  }
+  return true
+}
+
 Vue.config.productionTip = false
 
 new Vue({

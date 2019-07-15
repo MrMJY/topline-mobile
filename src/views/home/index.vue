@@ -44,7 +44,7 @@
                 <span class="gray">{{ article.pubdate | dateFormat }}</span>
                 <van-icon class="close"
                           name="close"
-                          @click="handleShowMoreAction" />
+                          @click="handleShowMoreAction(article)" />
               </p>
             </van-cell>
           </van-list>
@@ -54,7 +54,8 @@
     <home-channels v-model="isShow"
                    :userChannels.sync="channels"
                    :activeItem.sync="activeIndex" />
-    <more-action v-model="isShowMoreAction" />
+    <more-action v-model="isShowMoreAction"
+                 :currentArticle="currentArticle" />
   </div>
 </template>
 
@@ -75,7 +76,8 @@ export default {
       channels: [],
       successText: '',
       isShow: false,
-      isShowMoreAction: false
+      isShowMoreAction: false,
+      currentArticle: null
     }
   },
 
@@ -178,9 +180,9 @@ export default {
       }
     },
 
-    handleShowMoreAction () {
+    handleShowMoreAction (article) {
       this.isShowMoreAction = true
-      console.log('show called')
+      this.currentArticle = article
     }
   }
 }

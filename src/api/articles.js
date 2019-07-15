@@ -15,3 +15,13 @@ export const getVisitorArticles = ({
     }
   })
 }
+
+export const dislikeArticles = articleId => {
+  return request({
+    method: 'POST',
+    url: '/app/v1_0/article/dislikes',
+    data: {
+      target: articleId
+    }
+  })
+}
