@@ -24,7 +24,8 @@
           </van-cell>
           <van-cell v-for="item in reportsType"
                     :key="item.value"
-                    :title="item.label" />
+                    :title="item.label"
+                    @click="handleReportArticle(item.value)" />
         </template>
       </van-cell-group>
     </van-dialog>
@@ -32,7 +33,7 @@
 </template>
 
 <script>
-import { dislikeArticles } from '@/api/articles'
+import { dislikeArticles, reportArticles } from '@/api/articles'
 import { addBlackList } from '@/api/user'
 export default {
   name: 'MoreAction',
@@ -120,6 +121,28 @@ export default {
       } catch (err) {
         console.log(err)
         this.$toast('操作失败')
+      }
+      this.handleHidden()
+    },
+
+    handleReportArticle (type) {
+      if (!this.$isLogin()) {
+        this.$toast('登录后可操作')
+        return
+      }
+      if (type === 0) {
+        this.$toast('此功能还未开发')
+        return
+      }
+      try {
+        reportArticles({
+          target: this.currentArticle.art_id,
+          type
+        })
+        this.$toast('举报成功')
+      } catch (err) {
+        console.log(err)
+        this.$toast('举报失败')
       }
       this.handleHidden()
     }
