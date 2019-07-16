@@ -44,7 +44,8 @@
       </van-nav-bar>
       <van-cell v-for="(history, index) in historyList"
                 :key="history"
-                :title="history">
+                :title="history"
+                @click="handleSearch(history)">
         <van-icon name="cross"
                   v-show="isEdit"
                   @click="historyList.splice(index, 1)" />
@@ -117,15 +118,15 @@ export default {
 
     // 默认值是搜索的关键字
     handleSearch (keyword = this.keyword) {
-      // this.suggestionList = []
+      this.suggestionList = []
       this.historyList.unshift(keyword)
       this.historyList = [...new Set(this.historyList)]
-      // this.$router.push({
-      //   name: 'search-results',
-      //   params: {
-      //     keyword
-      //   }
-      // })
+      this.$router.push({
+        name: 'result',
+        params: {
+          keyword
+        }
+      })
     }
   }
 }
