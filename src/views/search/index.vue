@@ -20,6 +20,26 @@
                 :title="title"
                 icon="search" />
     </van-cell-group>
+
+    <!-- 历史记录 -->
+    <van-cell-group>
+      <van-nav-bar left-text="历史记录"
+                   class="history-list">
+        <div slot="right">
+          <template v-if="!isEdit">
+            <van-icon name="delete"
+                      @click="isEdit = true" />
+          </template>
+          <template v-else>
+            <a>删除全部</a>&nbsp;
+            <a @click="isEdit = false">完成</a>
+          </template>
+        </div>
+        <van-cell v-for="history in historyList"
+                  :key="history"
+                  :title="history" />
+      </van-nav-bar>
+    </van-cell-group>
   </div>
 </template>
 
@@ -31,7 +51,9 @@ export default {
   data () {
     return {
       keyword: '',
-      suggestionList: []
+      suggestionList: [],
+      historyList: [],
+      isEdit: false
     }
   },
 
@@ -83,5 +105,11 @@ export default {
 }
 .suggestion-list {
   margin-top: 43px;
+}
+.history-list {
+  background-color: transparent;
+  .van-nav-bar__text {
+    color: #333;
+  }
 }
 </style>
