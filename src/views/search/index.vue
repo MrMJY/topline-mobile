@@ -9,6 +9,7 @@
                     input-align="center"
                     v-model="keyword"
                     show-action
+                    @search="handleSearch(keyword)"
                     @cancel="$router.back()" />
       </form>
     </van-nav-bar>
@@ -17,12 +18,17 @@
     <van-cell-group class="suggestion-list">
       <van-cell v-for="title in suggestionList"
                 :key="title"
-                :title="title"
-                icon="search" />
+                icon="search">
+        <p slot="title"
+           class="m0"
+           v-html="highLight(title)"
+           @click="handleSearch(title)">
+        </p>
+      </van-cell>
     </van-cell-group>
 
     <!-- 历史记录 -->
-    <van-cell-group>
+    <van-cell-group v-show="!suggestionList.length">
       <van-nav-bar left-text="历史记录"
                    class="history-list">
         <div slot="right">
@@ -31,20 +37,24 @@
                       @click="isEdit = true" />
           </template>
           <template v-else>
-            <a>删除全部</a>&nbsp;
+            <a @click="historyList = []">删除全部</a>&nbsp;
             <a @click="isEdit = false">完成</a>
           </template>
         </div>
-        <van-cell v-for="history in historyList"
-                  :key="history"
-                  :title="history" />
       </van-nav-bar>
+      <van-cell v-for="(history, index) in historyList"
+                :key="history"
+                :title="history">
+        <van-icon name="cross"
+                  v-show="isEdit"
+                  @click="historyList.splice(index, 1)" />
+      </van-cell>
     </van-cell-group>
   </div>
 </template>
 
 <script>
-import { getSuggestion } from '@/api/search'
+import { getSuggestion, getUserHistory, deleteUserHistory } from '@/api/search'
 import { debounce } from 'lodash'
 export default {
   name: 'Search',
@@ -52,7 +62,7 @@ export default {
     return {
       keyword: '',
       suggestionList: [],
-      historyList: [],
+      historyList: JSON.parse(window.localStorage.getItem('history')) || [],
       isEdit: false
     }
   },
@@ -66,11 +76,57 @@ export default {
       }
       const data = await getSuggestion(newText)
       this.suggestionList = data.options
-    }, 800)
+    }, 800),
+
+    async historyList () {
+      // 监视 history 的变化
+      if (this.isLogin) {
+        // 登录状态发请求
+        if (this.historyList.length) {
+          // 添加用户历史记录
+        } else {
+          // 清空用户历史记录
+          const data = await deleteUserHistory()
+          console.log(data)
+        }
+      } else {
+        // 未登录修改本地历史
+        window.localStorage.setItem('history', JSON.stringify(this.historyList))
+      }
+    }
+  },
+
+  computed: {
+    isLogin () {
+      return this.$isLogin()
+    }
+  },
+
+  async created () {
+    if (this.isLogin) {
+      // 登录状态下，发送请求获取用户历史
+      const data = await getUserHistory()
+      this.historyList = data.keywords
+    }
   },
 
   methods: {
+    highLight (title) {
+      return title.toLowerCase().split(this.keyword).join(`<span style="color:red">${this.keyword}</span>`)
+    },
 
+    // 默认值是搜索的关键字
+    handleSearch (keyword = this.keyword) {
+      // this.suggestionList = []
+      this.historyList.unshift(keyword)
+      this.historyList = [...new Set(this.historyList)]
+      // this.$router.push({
+      //   name: 'search-results',
+      //   params: {
+      //     keyword
+      //   }
+      // })
+    }
   }
 }
 </script>
@@ -111,5 +167,8 @@ export default {
   .van-nav-bar__text {
     color: #333;
   }
+}
+.m0 {
+  margin: 0;
 }
 </style>
