@@ -6,7 +6,8 @@
                   placeholder="搜索"
                   background="#3296fa"
                   input-align="center"
-                  v-model="value" />
+                  disabled
+                  @click="$router.push({name: 'search'})" />
     </van-nav-bar>
     <van-tabs v-model="activeIndex">
       <van-button class="nav-btn"
@@ -71,7 +72,6 @@ export default {
   },
   data () {
     return {
-      value: '',
       activeIndex: 0,
       channels: [],
       successText: '',
